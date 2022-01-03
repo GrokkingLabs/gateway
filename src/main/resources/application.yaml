@@ -1,0 +1,35 @@
+server:
+  port: 9090
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - gateway
+          - metrics
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: INFO
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: get_ip_health
+          uri: ${hostip}
+          predicates:
+            - Path=/ip/health/**
+            - Method=GET
+          filters:
+            - RewritePath=/ip(?<segment>/?.*), $\{segment}
+            - AddRequestHeader=X-Grokking-AppId, ${appid}
+        - id: get_ip_ip
+          uri: ${hostip}
+          predicates:
+            - Path=/ip/myip/**
+            - Method=GET
+          filters:
+            - RewritePath=/ip(?<segment>/?.*), /
+            - AddRequestHeader=X-Grokking-AppId, ${appid}
